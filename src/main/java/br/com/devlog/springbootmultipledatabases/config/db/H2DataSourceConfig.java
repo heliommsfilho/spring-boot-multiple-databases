@@ -19,7 +19,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 /**
- * Teaches Spring where to seek for the configurations to connect in our MySQL database.
+ * Teaches Spring where to seek for the configurations to connect in our H2 database.
  *
  * Repository: <a>https://github.com/heliomf-dev/spring-boot-multiple-databases</a>
  * @author Hélio Márcio Filho <My GitHub: <a>https://github.com/heliomf-dev</a>>
@@ -35,19 +35,18 @@ import javax.sql.DataSource;
 
 /* Teaches Spring how to create connections and where seek for repositories for this database. */
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "mysqlEntityManagerFactory", // Specifies which @Bean will provide the EntityManager
-        transactionManagerRef   = "mysqlTransactionManager", // Specifies which @Bean will the provide JpaTransactionManager
-        basePackages = "br.com.devlog.springbootmultipledatabases.db.mysql.repository") // Teaches Spring where to seek for repositories for this database
-public class MySQLDataSourceConfig {
+        entityManagerFactoryRef = "h2EntityManagerFactory", // Specifies which @Bean will provide the EntityManager
+        transactionManagerRef   = "h2TransactionManager", // Specifies which @Bean will the provide JpaTransactionManager
+        basePackages = "br.com.devlog.springbootmultipledatabases.db.h2.repository") // Teaches Spring where to seek for repositories for this database
+public class H2DataSourceConfig {
 
     /* Indicates that a bean should be given preference when multiple candidates
      * are qualified to autowire a single-valued dependency. If exactly one
      * 'primary' bean exists among the candidates, it will be the autowired value */
-    @Primary
-    @Bean(name = "mysqlDataSource")
+    @Bean(name = "h2DataSource")
 
     /* All configurations with this prefix in application.properties will be related to this database. */
-    @ConfigurationProperties(prefix = "mysql.datasource")
+    @ConfigurationProperties(prefix = "h2.datasource")
     /**
      * Creates a new DataSource which will be used to create a {@link LocalContainerEntityManagerFactoryBean}
      * and teaches Spring how to read the configurations from application.properties.
@@ -60,8 +59,7 @@ public class MySQLDataSourceConfig {
     /* Indicates that a bean should be given preference when multiple candidates
      * are qualified to autowire a single-valued dependency. If exactly one
      * 'primary' bean exists among the candidates, it will be the autowired value */
-    @Primary
-    @Bean(name = "mysqlEntityManagerFactory")
+    @Bean(name = "h2EntityManagerFactory")
     /**
      * Provides a {@link EntityManager} for this database.
      *
@@ -70,18 +68,17 @@ public class MySQLDataSourceConfig {
      *
      * @return a factory of EntityManager.
      * */
-    public LocalContainerEntityManagerFactoryBean mysqlEntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("mysqlDataSource") DataSource dataSource) {
+    public LocalContainerEntityManagerFactoryBean h2EntityManagerFactory(EntityManagerFactoryBuilder builder, @Qualifier("h2DataSource") DataSource dataSource) {
         return builder.dataSource(dataSource)
-                      .packages("br.com.devlog.springbootmultipledatabases.db.mysql.model")
-                      .persistenceUnit("mysqlPU")
+                      .packages("br.com.devlog.springbootmultipledatabases.db.h2.model")
+                      .persistenceUnit("h2PU")
                       .build();
     }
 
     /* Indicates that a bean should be given preference when multiple candidates
      * are qualified to autowire a single-valued dependency. If exactly one
      * 'primary' bean exists among the candidates, it will be the autowired value */
-    @Primary
-    @Bean(name = "mysqlTransactionManager")
+    @Bean(name = "h2TransactionManager")
     /**
      * Provides a transaction manager.
      *
@@ -90,7 +87,7 @@ public class MySQLDataSourceConfig {
      * @return a transaction manager.
      * */
 
-    public PlatformTransactionManager mysqlTransactionManager(@Qualifier("mysqlEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+    public PlatformTransactionManager mysqlTransactionManager(@Qualifier("h2EntityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
 }
